@@ -1,5 +1,5 @@
-Unison = (function() {
-
+/*jshint indent:2 */
+var Unison = (function() {
   'use strict';
 
   var win = window;
@@ -31,7 +31,9 @@ Unison = (function() {
       };
     },
     isObject : function(e) { return typeof e === 'object'; },
-    isUndefined : function(e) { return typeof e === 'undefined'; }
+    isUndefined : function(e) { return typeof e === 'undefined'; },
+    isUnisonReady : function () { return win.getComputedStyle(head, null).getPropertyValue('clear') !== 'none'; },
+    initializeUnison : function () { unisonReady = util.isUnisonReady(); breakpoints.update(); }
   };
 
   var events = {
@@ -81,9 +83,8 @@ Unison = (function() {
   };
 
   win.onresize = util.debounce(breakpoints.update, 100);
-  doc.addEventListener('DOMContentLoaded', function(){
-    unisonReady = win.getComputedStyle(head, null).getPropertyValue('clear') !== 'none';
-    breakpoints.update();
+  doc.addEventListener('DOMContentLoaded', function() {
+    util.initializeUnison();
   });
 
   return {
@@ -94,6 +95,7 @@ Unison = (function() {
     on : events.on,
     emit : events.emit,
     util : {
+      initializeUnison : util.initializeUnison,
       debounce : util.debounce,
       isObject : util.isObject
     }
