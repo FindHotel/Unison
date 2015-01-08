@@ -62,6 +62,19 @@
       }
       eventCache[event].push(callback);
     },
+    off: function(event, callback) {
+      if (!event) return eventCache = [];
+      if (util.isObject(eventCache[event])) {
+        if (!callback) return delete eventCache[event];
+        for (var i = 0; i < eventCache[event].length; i++) {
+          if (callback === eventCache[event][i]) {
+            eventCache[event].splice(i,1);
+            if (!eventCache[event].length) delete eventCache[event];
+            return;
+          }
+        }
+      }
+    },
     emit: function (event, data) {
       if (util.isObject(eventCache[event])) {
         var eventQ = eventCache[event].slice();
@@ -112,6 +125,7 @@
       now: breakpoints.now
     },
     on: events.on,
+    off: events.off,
     emit: events.emit,
     util: {
       initializeUnison: util.initializeUnison,
