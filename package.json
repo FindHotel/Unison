@@ -1,0 +1,22 @@
+{
+  "name": "unison",
+  "version": "1.0.0",
+  "description": "Unison.js =========",
+  "main": "js/unison.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FindHotel/Unison.git"
+  },
+  "keywords": [
+    "mediaqueries"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FindHotel/Unison/issues"
+  },
+  "homepage": "https://github.com/FindHotel/Unison#readme"
+}

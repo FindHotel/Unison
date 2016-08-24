@@ -12,6 +12,8 @@
 }(this, function () {
   'use strict';
 
+  if(typeof window === 'undefined') return;
+
   var win = window;
   var doc = document;
   var head = doc.head;
