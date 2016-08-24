@@ -1,5 +1,15 @@
-Unison = (function() {
-
+/*jshint indent:2 */
+/*global define */
+(function (root, factory) {
+  'use strict';
+  if (typeof define === 'function' && define.amd) {
+    define([], function () {
+      return (root.Unison = factory());
+    });
+  } else {
+    root.Unison = factory();
+  }
+}(this, function () {
   'use strict';
 
   var win = window;
@@ -10,16 +20,16 @@ Unison = (function() {
   var currentBP;
 
   var util = {
-    parseMQ : function(el) {
+    parseMQ: function (el) {
       var str = win.getComputedStyle(el, null).getPropertyValue('font-family');
       return str.replace(/"/g, '').replace(/'/g, '');
     },
-    debounce : function(func, wait, immediate) {
+    debounce: function (func, wait, immediate) {
       var timeout;
-      return function() {
+      return function () {
         var context = this, args = arguments;
         clearTimeout(timeout);
-        timeout = setTimeout(function() {
+        timeout = setTimeout(function () {
           timeout = null;
           if (!immediate) {
             func.apply(context, args);
@@ -30,21 +40,45 @@ Unison = (function() {
         }
       };
     },
-    isObject : function(e) { return typeof e === 'object'; },
-    isUndefined : function(e) { return typeof e === 'undefined'; }
+    isObject: function (e) {
+      return typeof e === 'object';
+    },
+    isUndefined: function (e) {
+      return typeof e === 'undefined';
+    },
+    isUnisonReady: function () {
+      return win.getComputedStyle(head, null).getPropertyValue('clear') !== 'none';
+    },
+    initializeUnison: function () {
+      unisonReady = util.isUnisonReady();
+      breakpoints.update();
+    }
   };
 
   var events = {
-    on : function(event, callback) {
-      if ( !util.isObject(eventCache[event]) ) {
+    on: function (event, callback) {
+      if (!util.isObject(eventCache[event])) {
         eventCache[event] = [];
       }
       eventCache[event].push(callback);
     },
-    emit : function(event, data) {
-      if ( util.isObject(eventCache[event]) ) {
+    off: function(event, callback) {
+      if (!event) return eventCache = [];
+      if (util.isObject(eventCache[event])) {
+        if (!callback) return delete eventCache[event];
+        for (var i = 0; i < eventCache[event].length; i++) {
+          if (callback === eventCache[event][i]) {
+            eventCache[event].splice(i,1);
+            if (!eventCache[event].length) delete eventCache[event];
+            return;
+          }
+        }
+      }
+    },
+    emit: function (event, data) {
+      if (util.isObject(eventCache[event])) {
         var eventQ = eventCache[event].slice();
-        for ( var i = 0; i < eventQ.length; i++ ) {
+        for (var i = 0; i < eventQ.length; i++) {
           eventQ[i].call(this, data);
         }
       }
@@ -52,26 +86,26 @@ Unison = (function() {
   };
 
   var breakpoints = {
-    all : function() {
+    all: function () {
       var BPs = {};
       var allBP = util.parseMQ(doc.querySelector('title')).split(',');
-      for ( var i = 0; i < allBP.length; i++ ) {
+      for (var i = 0; i < allBP.length; i++) {
         var mq = allBP[i].trim().split(' ');
         BPs[mq[0]] = mq[1];
       }
-      return ( unisonReady ) ? BPs : null ;
+      return ( unisonReady ) ? BPs : null;
     },
-    now : function(callback) {
+    now: function (callback) {
       var nowBP = util.parseMQ(head).split(' ');
       var now = {
-        name : nowBP[0],
-        width : nowBP[1]
+        name: nowBP[0],
+        width: nowBP[1]
       };
-      return ( unisonReady ) ? (( util.isUndefined(callback) ) ? now : callback(now)) : null ;
+      return ( unisonReady ) ? (( util.isUndefined(callback) ) ? now : callback(now)) : null;
     },
-    update : function() {
-      breakpoints.now(function(bp) {
-        if ( bp.name !== currentBP ) {
+    update: function () {
+      breakpoints.now(function (bp) {
+        if (bp.name !== currentBP) {
           events.emit(bp.name);
           events.emit('change', bp);
           currentBP = bp.name;
@@ -81,22 +115,22 @@ Unison = (function() {
   };
 
   win.onresize = util.debounce(breakpoints.update, 100);
-  doc.addEventListener('DOMContentLoaded', function(){
-    unisonReady = win.getComputedStyle(head, null).getPropertyValue('clear') !== 'none';
-    breakpoints.update();
+  doc.addEventListener('DOMContentLoaded', function () {
+    util.initializeUnison();
   });
 
   return {
-    fetch : {
-      all : breakpoints.all,
-      now : breakpoints.now
+    fetch: {
+      all: breakpoints.all,
+      now: breakpoints.now
     },
-    on : events.on,
-    emit : events.emit,
-    util : {
-      debounce : util.debounce,
-      isObject : util.isObject
+    on: events.on,
+    off: events.off,
+    emit: events.emit,
+    util: {
+      initializeUnison: util.initializeUnison,
+      debounce: util.debounce,
+      isObject: util.isObject
     }
   };
-
-})();
+}));

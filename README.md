@@ -127,6 +127,8 @@ Comments conditional loading is implimented via Unison.
 Version History
 ===============
 
+**0.8.0** - Jan 7, 2015 - Added `off()` for unsubscribing to events.
+
 **0.6.0** - Mar 20, 2014 - Added events and refactored conditional comments to not 
 use matchMedia.
 
